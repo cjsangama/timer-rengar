@@ -4,13 +4,16 @@
 <meta charset="UTF-8">
 <title>Timer Gym LoL</title>
 
+<!-- FUENTE ROCK -->
+<link href="https://fonts.googleapis.com/css2?family=RocknRoll+One&display=swap" rel="stylesheet">
+
 <style>
 
 body{
 margin:0;
 background:#000;
 color:white;
-font-family:Arial, Helvetica, sans-serif;
+font-family:'RocknRoll One', sans-serif;
 display:flex;
 justify-content:center;
 align-items:center;
@@ -19,7 +22,37 @@ flex-direction:column;
 overflow:hidden;
 }
 
-/* FONDOS */
+/* PANEL CONFIG */
+
+.config{
+position:absolute;
+top:20px;
+display:flex;
+gap:20px;
+align-items:center;
+background:rgba(0,0,0,0.6);
+padding:15px 25px;
+border-radius:10px;
+}
+
+.config input{
+width:60px;
+padding:5px;
+font-size:16px;
+text-align:center;
+}
+
+.config button{
+padding:8px 20px;
+font-size:16px;
+cursor:pointer;
+background:#ff4444;
+border:none;
+color:white;
+border-radius:6px;
+}
+
+/* FONDO */
 
 .bg{
 position:fixed;
@@ -37,29 +70,16 @@ opacity:0.35;
 
 #fase{
 font-size:5vw;
+}
+
+#set{
+font-size:2vw;
 margin-bottom:10px;
 }
 
 #timer{
 font-size:18vw;
 font-weight:bold;
-}
-
-/* BOTON */
-
-button{
-margin-top:40px;
-font-size:2vw;
-padding:15px 40px;
-border:none;
-border-radius:10px;
-background:#ff4444;
-color:white;
-cursor:pointer;
-}
-
-button:hover{
-background:#ff2222;
 }
 
 .work{
@@ -75,30 +95,48 @@ color:#4ecbff;
 
 <body>
 
-<div id="gifTrabajo" class="bg"></div>
-<div id="gifDescanso" class="bg" style="display:none;"></div>
+<div class="config">
 
-<div id="fase" class="work">TRABAJO</div>
-<div id="timer">01:00</div>
+<label>Series
+<input id="setsInput" type="number" value="4">
+</label>
+
+<label>Trabajo
+<input id="workInput" type="number" value="60">
+</label>
+
+<label>Descanso
+<input id="restInput" type="number" value="30">
+</label>
 
 <button onclick="iniciar()">INICIAR</button>
 
-<!-- SONIDOS -->
+</div>
+
+<div id="gifTrabajo" class="bg"></div>
+<div id="gifDescanso" class="bg" style="display:none;"></div>
+
+<div id="set">SET 1</div>
+<div id="fase" class="work">TRABAJO</div>
+<div id="timer">01:00</div>
 
 <audio id="rengarSound" src="rengar.mp3"></audio>
 <audio id="tahmSound" src="tahmkench.mp3"></audio>
 
 <script>
 
-let trabajo = 60;
-let descanso = 30;
+let trabajo;
+let descanso;
+let sets;
 
-let tiempo = trabajo;
+let setActual = 1;
+let tiempo;
 let trabajando = true;
 let intervalo;
 
 const timer = document.getElementById("timer");
 const fase = document.getElementById("fase");
+const setText = document.getElementById("set");
 
 const gifTrabajo = document.getElementById("gifTrabajo");
 const gifDescanso = document.getElementById("gifDescanso");
@@ -138,7 +176,19 @@ function iniciar(){
 
 clearInterval(intervalo);
 
-/* RUGIDO AL EMPEZAR */
+/* LEER CONFIG */
+
+sets = parseInt(document.getElementById("setsInput").value);
+trabajo = parseInt(document.getElementById("workInput").value);
+descanso = parseInt(document.getElementById("restInput").value);
+
+setActual = 1;
+tiempo = trabajo;
+trabajando = true;
+
+setText.textContent = "SET " + setActual + " / " + sets;
+
+/* RUGIDO INICIAL */
 
 rengarSound.currentTime = 0;
 rengarSound.play();
@@ -161,8 +211,6 @@ tiempo=descanso;
 fase.textContent="DESCANSO";
 fase.className="rest";
 
-/* VOZ DE TAHM KENCH */
-
 tahmSound.currentTime = 0;
 tahmSound.play();
 
@@ -171,13 +219,22 @@ gifDescanso.style.display="block";
 
 }else{
 
+setActual++;
+
+if(setActual>sets){
+clearInterval(intervalo);
+fase.textContent="FIN";
+timer.textContent="00:00";
+return;
+}
+
 trabajando=true;
 tiempo=trabajo;
 
+setText.textContent="SET " + setActual + " / " + sets;
+
 fase.textContent="TRABAJO";
 fase.className="work";
-
-/* RUGIDO DE RENGAR */
 
 rengarSound.currentTime = 0;
 rengarSound.play();
